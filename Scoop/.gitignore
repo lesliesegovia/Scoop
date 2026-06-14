@@ -1,0 +1,25 @@
+# Xcode
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+DerivedData/
+.build/
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+# Swift Package Manager
+.swiftpm/
+Packages/
+Package.resolved
+
+# CocoaPods (if used later)
+Pods/
+
+# macOS
+.DS_Store
+
+# Secrets — important for our Claude API key later
+Secrets.swift
+Config.xcconfig
+*.env
