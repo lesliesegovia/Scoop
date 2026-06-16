@@ -14,6 +14,9 @@ struct ContentView: View {
     @State private var calendarService = CalendarService()
     @State private var eventCount: Int = 0
     
+    @State private var healthKitService = HealthKitService()
+    @State private var stepCount: Int = 0
+    
     var body: some View {
         VStack(spacing: 16) {
             Text("Scoop")
@@ -21,8 +24,10 @@ struct ContentView: View {
             
             Text("Photos found: \(photoCount)")
             Text("Events found: \(eventCount)")
+            Text("Steps found: \(stepCount)")
             
-            Button("Request Access & Fetch") {
+            // Photos
+            Button("Request Access & Fetch - Photos") {
                 Task {
                     await photosService.requestAccess()
                     
@@ -35,6 +40,7 @@ struct ContentView: View {
                 }
             }
             
+            // Events
             Button("Request Access & Fetch - Calender"){
                 Task {
                     await calendarService.requestAccess()
@@ -45,6 +51,20 @@ struct ContentView: View {
                     
                     let events = calendarService.fetchEvents(from: startOfMonth, to: now)
                     eventCount = events.count
+                }
+            }
+            
+            // Steps
+            Button("Request Access & Fetch - Steps") {
+                Task {
+                    await healthKitService.requestAccess()
+                    
+                    let calendar = Calendar.current
+                    let now = Date()
+                    let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
+                    
+                    let steps = await healthKitService.fetchStepCount(from: startOfMonth, to: now)
+                    stepCount = steps
                 }
             }
         }
