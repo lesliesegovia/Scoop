@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    let extractor: EventExtracting = MockEventExtractor()
+    
+    @State private var extractedEvent: LifeEvent?
+    
     @State private var photosService = PhotosService()
     @State private var photoCount: Int = 0
     
@@ -66,6 +70,23 @@ struct ContentView: View {
                     let steps = await healthKitService.fetchStepCount(from: startOfMonth, to: now)
                     stepCount = steps
                 }
+            }
+            
+            // Extraction (mock for now)
+            Button("Extract Sample Event") {
+                Task {
+                    extractedEvent = try? await extractor.extract(from: "sample raw data")
+                }
+            }
+            
+            if let event = extractedEvent {
+                VStack(spacing: 4) {
+                    Text(event.title).font(.headline)
+                    Text(event.summary)
+                    Text("Category: \(event.category)")
+                    Text("Significance: \(event.significance)")
+                }
+                .padding(.top)
             }
         }
         .padding()
