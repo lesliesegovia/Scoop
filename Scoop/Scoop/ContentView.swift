@@ -10,7 +10,7 @@ import SwiftUI
 struct ContentView: View {
     let extractor: EventExtracting = MockEventExtractor()
     
-    @State private var extractedEvent: LifeEvent?
+    @State private var extractedEvents: [LifeEvent] = []
     
     @State private var photosService = PhotosService()
     @State private var photoCount: Int = 0
@@ -73,13 +73,14 @@ struct ContentView: View {
             }
             
             // Extraction (mock for now)
-            Button("Extract Sample Event") {
+            Button("Extract Sample Events") {
                 Task {
-                    extractedEvent = try? await extractor.extract(from: "sample raw data")
+                    extractedEvents = (try? await extractor.extract(from: "sample raw data")) ?? []
                 }
             }
             
-            if let event = extractedEvent {
+            ForEach(extractedEvents.indices, id: \.self) { i in
+                let event = extractedEvents[i]
                 VStack(spacing: 4) {
                     Text(event.title).font(.headline)
                     Text(event.summary)

@@ -28,7 +28,7 @@ struct LifeEvent {
 
 // Lets callers swap the on-device extractor for a mock (simulator/tests)
 protocol EventExtracting {
-    func extract(from rawData: String) async throws -> LifeEvent
+    func extract(from rawData: String) async throws -> [LifeEvent]
 }
 
 struct OnDeviceEventExtractor: EventExtracting {
@@ -49,24 +49,38 @@ struct OnDeviceEventExtractor: EventExtracting {
         }
     }
     
-    func extract(from rawData: String) async throws -> LifeEvent {
+    func extract(from rawData: String) async throws -> [LifeEvent] {
         let session = LanguageModelSession(instructions: """
-            You extract a single factual life event from raw personal data.
+            You extract the distinct factual life events from raw personal data.
             Describe only what happened, plainly.
             """)
 
-        let response = try await session.respond(to: rawData, generating: LifeEvent.self)
+        let response = try await session.respond(to: rawData, generating: [LifeEvent].self)
         return response.content
     }
 }
 
 struct MockEventExtractor: EventExtracting {
-    func extract(from rawData: String) async throws -> LifeEvent {
-        LifeEvent(
+    func extract(from rawData: String) async throws -> [LifeEvent] {
+        [
+            LifeEvent(
             title: "Dinner with friends",
             summary: "Met Kat, Justin, Andres and Danny for dinner at Trattoria Amici on Friday evening.",
             category: .social,
             significance: 3
-        )
+            ),
+            LifeEvent(
+                title: "Flight to Edinburgh",
+                summary: "Traveled to Edinburgh for a week long trip",
+                category: .travel,
+                significance: 4
+            ),
+            LifeEvent(
+                title: "Gym day",
+                summary: "Hit 6,000 steps on the treadmill at the gym Friday morning.",
+                category: .fitness,
+                significance: 2
+            )
+        ]
     }
 }
