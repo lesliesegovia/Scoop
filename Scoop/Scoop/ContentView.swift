@@ -9,12 +9,14 @@ import SwiftUI
 
 struct ContentView: View {
     let extractor: EventExtracting = MockEventExtractor()
+    let composer = RawDataComposer()
     
     @State private var extractedEvents: [LifeEvent] = []
     
     @State private var photosService = PhotosService()
     @State private var photoCount: Int = 0
     
+    @State private var calendarEvents: [CalendarService.CalendarEvent] = []
     @State private var calendarService = CalendarService()
     @State private var eventCount: Int = 0
     
@@ -53,8 +55,21 @@ struct ContentView: View {
                     let now = Date()
                     let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
                     
-                    let events = calendarService.fetchEvents(from: startOfMonth, to: now)
-                    eventCount = events.count
+                    let fetched = calendarService.fetchEvents(from: startOfMonth, to: now)
+                    calendarEvents = fetched
+                    eventCount = fetched.count
+                }
+            }
+            
+            Button("Extract Events") {
+                Task {
+                    let rawData = composer.compose(
+                        events: calendarEvents,
+                        photoCount: photoCount,
+                        stepCount: stepCount
+                    )
+                    print(rawData)   // so you can see the real digest in the console
+                    extractedEvents = (try? await extractor.extract(from: rawData)) ?? []
                 }
             }
             
