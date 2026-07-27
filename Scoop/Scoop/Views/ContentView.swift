@@ -13,7 +13,7 @@ struct ContentView: View {
     
     @State private var extractedEvents: [LifeEvent] = []
     
-    @State private var photosService = PhotosService()
+    @State private var photosService = PhotoService()
     @State private var photoCount: Int = 0
     
     @State private var calendarEvents: [CalendarService.CalendarEvent] = []
@@ -47,7 +47,7 @@ struct ContentView: View {
             }
             
             // Events
-            Button("Request Access & Fetch - Calender"){
+            Button("Request Access & Fetch - Calendar"){
                 Task {
                     await calendarService.requestAccess()
                     

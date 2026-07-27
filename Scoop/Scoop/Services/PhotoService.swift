@@ -3,7 +3,7 @@ import Photos
 import CoreLocation
 
 @Observable
-class PhotosService {
+class PhotoService {
     
     var authorizationStatus: PHAuthorizationStatus = .notDetermined
     
