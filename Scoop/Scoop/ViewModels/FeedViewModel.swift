@@ -11,6 +11,7 @@ final class FeedViewModel {
     private let composer: RawDataComposer
     private let extractor: EventExtracting
     private let briefBuilder: BriefBuilder
+    private let claude: ClaudeGenerating
     
     // MARK: - Published state
         enum LoadingState {
@@ -21,6 +22,7 @@ final class FeedViewModel {
         }
 
     private(set) var events: [LifeEvent] = []
+    private(set) var copy: WeeklyNewsFeedCopy?
     private(set) var loadingState: LoadingState = .idle
     
     // MARK: - Pipeline
@@ -61,14 +63,9 @@ final class FeedViewModel {
                 totalPhotos: photos.count
             )
             
-            // Temporary: inspect the exact brief the Claude call will receive
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            encoder.dateEncodingStrategy = .iso8601
-            if let data = try? encoder.encode(brief),
-               let json = String(data: data, encoding: .utf8) {
-                print(json)
-            }
+            // Editorial writing: Claude turns the brief into newsfeed prose
+            copy = try await claude.generateCopy(from: brief)
+
             loadingState = .loaded
         } catch {
             loadingState = .failed(error.localizedDescription)
@@ -81,7 +78,8 @@ final class FeedViewModel {
         healthKitService: HealthKitService = HealthKitService(),
         composer: RawDataComposer = RawDataComposer(),
         extractor: EventExtracting = MockEventExtractor(),
-        briefBuilder: BriefBuilder = BriefBuilder()
+        briefBuilder: BriefBuilder = BriefBuilder(),
+        claude: ClaudeGenerating = MockClaudeService()
     ) {
         self.photosService = photosService
         self.calendarService = calendarService
@@ -89,5 +87,6 @@ final class FeedViewModel {
         self.composer = composer
         self.extractor = extractor
         self.briefBuilder = briefBuilder
+        self.claude = claude
     }
 }
